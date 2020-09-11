@@ -1,0 +1,702 @@
+$app-width: 800px;
+$app-height: 370px;
+
+$color-building-dark: var(--color-building-dark);
+$color-building: var(--color-building);
+$color-building-light: var(--color-building-light);
+
+$color-window-dark: var(--color-window-dark);
+$color-window-light: var(--color-window-light);
+$color-pointy: var(--color-pointy);
+$color-cloud-sunrise: white;
+$color-cloud-sunset: #9ED5F8;
+$color-sunrise-zenith: #2CA4F4;
+$color-sunrise-horizon: #C2E6FB;
+$color-sunset-zenith: #043385;
+$color-sunset-horizon: #1797D7;
+$color-sun: #FFFAAD;
+$color-moon: white;
+
+$duration: 1.5s;
+$half-duration: $duration / 2;
+$easing: cubic-bezier(.25, 0, .1, 1);
+
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+@mixin clouds() {
+  transition: box-shadow 3s $easing;
+  $shadows-sunrise: ();
+  $moved-shadows-sunrise: ();
+  $shadows-sunset: ();
+  $moved-shadows-sunset: ();
+  $delta: 50px;
+
+  $clouds: 10;
+  @for $i from 1 through $clouds {
+    $x: (random(20px) - 10px) + ($app-width / $clouds) * $i;
+    $shadow: $x random(50) * 1px + 10px 0 $color-cloud-sunrise;
+    $shadows-sunrise: append($shadows-sunrise, $shadow, comma);
+    $shadow: set-nth($shadow, 4, $color-cloud-sunset);
+    $shadows-sunset: append($shadows-sunset, $shadow, comma);
+  }
+
+  @each $shadow in $shadows-sunrise {
+    $shadow-y: nth($shadow, 2);
+    $new-shadow-y: $shadow-y + random(25) * 1px - 15px;
+    $new-shadow: set-nth($shadow, 2, $new-shadow-y);
+    $moved-shadows-sunrise: append($moved-shadows-sunrise, $new-shadow, comma);
+  }
+
+  @each $shadow in $moved-shadows-sunrise {
+    $moved-shadows-sunset: append(
+      $moved-shadows-sunset,
+      set-nth($shadow, 4, $color-cloud-sunset),
+      comma
+    );
+  }
+
+  &:before, &:after {
+    animation-duration: 3s;
+    animation-timing-function: $easing;
+    animation-fill-mode: forwards;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+  }
+  &:before {
+    background: $color-cloud-sunrise;
+    box-shadow: $shadows-sunrise;
+    animation-name: clouds-sunrise;
+  }
+  &:after {
+    background: $color-cloud-sunset;
+    opacity: var(--sunset);
+    box-shadow: $shadows-sunset;
+    animation-name: clouds-sunset;
+  }
+  @keyframes clouds-sunrise {
+    to {
+      box-shadow: $moved-shadows-sunrise;
+    }
+  }
+  @keyframes clouds-sunset {
+    to {
+      box-shadow: $moved-shadows-sunset;
+    }
+  }
+}
+
+@mixin stars() {
+  $stars: ();
+
+  @for $i from 1 through 30 {
+    $star:
+      random($app-width) * 1px
+      random($app-height) * 1px
+      random(4) * 1px white;
+    $stars: append($stars, $star, comma);
+  }
+
+  box-shadow: $stars;
+}
+
+@mixin transition {
+  transition: all $half-duration $half-duration $easing;
+}
+
+@mixin antennas($xs, $ys, $base: null) {
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 3px;
+    height: 30px;
+    bottom: 100%;
+
+    $shadows: ();
+    @for $i from 1 through length($xs) {
+      $shadow: nth($xs, $i) nth($ys, $i) 0 var(--color-pointy);
+      $shadows: append($shadows, $shadow, comma);
+    }
+    box-shadow: $shadows;
+    z-index: -1;
+  }
+
+  @if ($base) {
+    &:before {
+      content: '';
+      display: block;
+      position: absolute;
+      bottom: 100%;
+      left: 0;
+      height: 4px;
+      width: 100%;
+      background: $base;
+    }
+  }
+}
+
+@mixin pointy($deg, $height: 2rem) {
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    height: $height;
+    width: 100%;
+    z-index: -1;
+    @include transition;
+    background: $color-pointy;
+    transform-origin: if($deg > 0, bottom left, bottom right);
+    transform: skewY($deg);
+    z-index: -1;
+  }
+}
+
+#sunrise-container.sunrise * {
+  --sunset: 1;
+  --sunrise: 0;
+
+  --color-building-dark: #00436F;
+  --color-building: #0258C6;
+  --color-building-light: #1771C5;
+  --color-cloud: #9ED5F8;
+}
+
+#sunrise-container.sunset * {
+  --sunrise: 1;
+  --sunset: 0;
+
+  --color-building-dark: #50A8E3;
+  --color-building: #9BD9FE;
+  --color-building-light: #E5F7FE;
+  --color-cloud: white;
+}
+
+:root {
+  --color-window-dark: #3B98D8;
+  --color-window-light: white;
+}
+
+#sunrise-container {
+  transform: scale(0.75);
+  width: $app-width;
+  height: $app-height;
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: row;
+  z-index: 1;
+  position: relative;
+  font-family: Montserrat, sans-serif;
+
+  * {
+    cursor: default !important;
+    user-select: none !important;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  > .times {
+    flex: 0 0 70%;
+  }
+
+  > .heavens  {
+    flex: 0 0 30%;
+  }
+}
+
+.sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 2rem rgba(black, 0.1);
+
+  &:before, &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    @include transition;
+    z-index: -1;
+  }
+
+  &:before {
+    background: linear-gradient(to bottom, $color-sunrise-zenith, $color-sunrise-horizon);
+    opacity: var(--sunrise);
+  }
+  &:after {
+    background: linear-gradient(to bottom, $color-sunset-zenith, $color-sunset-horizon);
+    opacity: var(--sunset);
+  }
+}
+
+.times {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  overflow: hidden;
+}
+
+.time {
+  color: white;
+  font-size: 2.5rem;
+  @for $i from 1 through 5 {
+    &:nth-child(#{$i}) {
+      animation-delay: 0.05s * ($i - 1) !important;
+    }
+  }
+
+  &:first-child {
+    &:after {
+      font-size: 2.5rem;
+    }
+
+    ~ .time {
+      opacity: 0.5;
+    }
+  }
+
+  &:before {
+    $caret-width: 0.8rem;
+    content: '';
+    display: block;
+    left: calc(50% - #{$caret-width});
+    margin-bottom: 0.5rem;
+    width: 0;
+    height: 0;
+    border-width: $caret-width;
+    border-style: solid;
+    border-color: transparent;
+    border-bottom-color: white;
+  }
+
+  &:after {
+    font-size: 2rem;
+  }
+}
+
+.city {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.windows {
+  $color-window-off: #044DA8;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  $space: var(--window-space, 14px);
+  $color: var(--window-color, $color-window-light);
+  background: repeating-linear-gradient(to top,
+    $color-window-off 0,
+    $color-window-off 6px,
+    transparent 6px,
+    transparent $space
+  );
+  overflow: hidden;
+
+  &, &:before, &:after {
+    background-clip: content-box !important;
+  }
+
+  &:before, &:after {
+    @include transition;
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  &:before {
+    background: repeating-linear-gradient(to top,
+      $color 0,
+      $color 6px,
+      transparent 6px,
+      transparent $space
+    );
+    opacity: var(--sunrise);
+  }
+
+  &:after {
+    background: repeating-linear-gradient(to top,
+      gold 0,
+      gold 6px,
+      transparent 6px,
+      transparent $space
+    );
+    opacity: var(--sunset);
+    transition-delay: calc(var(--sunset, 0) * 1.5s);
+    transition-duration: $half-duration;
+  }
+}
+
+.ledge {
+  width: 100%;
+  height: 0;
+  padding: 50% 0;
+  overflow: hidden;
+  $color-shadow: rgba(black, 0.1);
+
+  &:before {
+    @include transition;
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    transform-origin: right top;
+    background: linear-gradient(to bottom,
+      rgba($color-shadow, 0.3),
+      transparent);
+  }
+
+  &:after {
+    @include transition;
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    height: 4px;
+    width: 100%;
+    background: $color-building;
+    box-shadow: 0 0 8px rgba(black, 0.2);
+  }
+}
+
+#sunrise-container .building {
+  position: absolute;
+  bottom: 0;
+  height: 60%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+  z-index: 1;
+
+  > .tower {
+    bottom: 0;
+    z-index: 1;
+    background: currentColor;
+
+    &, &:before, &:after {
+      @include transition;
+    }
+  }
+
+
+  // FIRST BUILDING
+  &:nth-child(1) {
+    left: 64px;
+    height: 145px;
+
+    > .tower {
+      &:nth-child(1) {
+        @include antennas(15px, -5px);
+        --color-pointy: $color-building-dark;
+        width: 21px;
+        height: 70%;
+        background: white;
+        color: $color-building-dark;
+        background: currentColor;
+        @include pointy(-45deg);
+
+        // windows
+        --window-color: $color-window-dark;
+        .windows, .windows:before, .windows:after {
+          padding-right: 8px;
+        }
+      }
+
+      &:nth-child(2) {
+        --color-pointy: $color-building;
+        width: 50px;
+        height: 100%;
+        color: $color-building;
+        @include pointy(-55deg, 45%);
+
+        // windows
+        .windows, .windows:before, .windows:after {
+          padding-left: 12px;
+        }
+      }
+
+      &:nth-child(3) {
+        @include antennas(5px 10px, -15px -5px);
+        --color-pointy: $color-building;
+        width: 21px;
+        height: 90%;
+        color: $color-building;
+        transform-origin: bottom left;
+        @include pointy(30deg);
+
+        .windows, .windows:before, .windows:after {
+          padding-left: 12px;
+        }
+      }
+    }
+  }
+
+  // SECOND BUILDING
+  &:nth-child(2) {
+    left: 284px;
+    height: 250px;
+
+    > .tower {
+      &:nth-child(1), &:nth-child(3) {
+        width: 38px;
+        height: 50%;
+
+        .windows, .windows:before, .windows:after {
+          padding: 0 6px;
+        }
+      }
+      &:nth-child(1) {
+        @include antennas(10px 20px, 15px 20px, $color-building);
+        color: $color-building-dark;
+        --color-pointy: $color-building-dark;
+        --window-color: $color-window-dark;
+        --window-space: 20px;
+      }
+      &:nth-child(2) {
+        @include antennas(20px 40px, 5px 15px);
+
+        width: 62px;
+        height: 100%;
+        color: $color-building;
+        --color-pointy: $color-building;
+        --window-color: $color-window-light;
+        --window-space: 20px;
+        &:before {
+          content: '';
+          height: 100%;
+          position: absolute;
+          top: 0;
+          display: block;
+          width: 20px;
+          background: $color-building-dark;
+        }
+        .windows, .windows:before, .windows:after {
+          padding-left: 30px;
+        }
+      }
+      &:nth-child(3) {
+        color: $color-building;
+        --window-space: 20px;
+      }
+    }
+  }
+
+  // THIRD BUILDING
+  &:nth-child(3) {
+    left: 554px;
+    height: 180px;
+
+    > .tower {
+      &:nth-child(1) {
+        --color-pointy: $color-building-dark;
+        width: 21px;
+        height: 70%;
+        background: white;
+        color: $color-building-dark;
+        background: $color-building-dark;
+        @include pointy(-55deg);
+
+        // windows
+        --window-color: $color-window-dark;
+        .windows, .windows:before, .windows:after {
+          padding-right: 8px;
+        }
+      }
+
+      &:nth-child(2) {
+        @include antennas(10px 14px 20px, 20px 23px 15px, $color-building-light);
+        --color-pointy: $color-building;
+        width: 30px;
+        height: 100%;
+        color: $color-building;
+
+        // windows
+        .windows, .windows:before, .windows:after {
+          padding-left: 12px;
+        }
+      }
+
+      &:nth-child(3) {
+        --color-pointy: $color-building;
+        width: 40px;
+        height: 70%;
+        color: $color-building;
+        transform-origin: bottom left;
+        @include pointy(50deg, 60px);
+        .windows, .windows:before, .windows:after {
+          padding-left: 12px;
+        }
+      }
+    }
+  }
+}
+
+.heavens {
+  position: relative;
+  width: 200px;
+  right: 0;
+  top: 0;
+  z-index: 10;
+  height: 100%;
+  overflow: hidden;
+}
+
+#sunrise-container [class^="sun"] {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  cursor: pointer;
+  left: 100%;
+  transform: translateX(-100%);
+
+  &:before {
+    content: attr(data-title);
+    display: inline-block;
+    width: 100%;
+    margin: 2rem 0;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  &:after {
+    @include transition;
+    margin-top: 1rem;
+    content: '';
+    display: inline-block;
+    border-radius: 50%;
+  }
+}
+
+.glow {
+  width: 200px;
+  height: 200px;
+  z-index: -1;
+  position: absolute;
+  right: 0;
+  filter: blur(50px);
+
+  &:before, &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+
+  &:before {
+    background: $color-sun;
+  }
+  &:after {
+    background: $color-moon;
+  }
+}
+
+.sunrise:after {
+  width: 78px;
+  height: 78px;
+  background: $color-sun;
+  box-shadow: 0 0 0 1rem rgba($color-sun, 0.3);
+}
+
+.sunset {
+  &:before {
+    margin-bottom: 3rem;
+  }
+  &:after {
+    width: 52px;
+    height: 52px;
+    background: $color-moon;
+    box-shadow: 0 0 0 1rem rgba($color-moon, 0.3), 0 0 0 2rem rgba($color-moon, 0.15);
+  }
+}
+
+.clouds {
+  overflow: hidden;
+  @include transition;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 10rem;
+  z-index: 1;
+  @include clouds();
+
+  &:before, &:after {
+    @include transition;
+    transition-timing-function: ease-in-out;
+    width: 10rem;
+    height: 10rem;
+    top: 5rem;
+    left: -5rem;
+    border-radius: 50%;
+    content: '';
+    display: block;
+    position: absolute;
+  }
+}
+
+.stars {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+
+  &:before, &:after {
+    @include transition;
+    opacity: var(--sunset);
+    content: '';
+    display: block;
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  &:before {
+    height: 3px;
+    width: 3px;
+    @include stars();
+  }
+
+  &:after {
+    height: 5px;
+    width: 5px;
+    @include stars();
+    transition-delay: calc(var(--sunset) * 1.5s);
+  }
+}
+
+#sunrise-container input {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+*, *:before, *:after {
+  box-sizing: border-box;
+  position: relative;
+}
