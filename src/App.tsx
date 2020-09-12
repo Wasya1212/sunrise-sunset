@@ -1,13 +1,12 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-import SunriseControlPanel from "./components/Sunrise";
+import SunriseSunsetPage from "./pages/SunriseSunset";
 
 function App() {
   return (
     <div className="App">
-      <SunriseControlPanel />
+      <SunriseSunsetPage />
     </div>
   );
 }

@@ -2,14 +2,14 @@ import React, { Component } from "react";
 
 import Moment from "moment";
 
-import { getSunrise, getSunset } from 'sunrise-sunset-js';
-
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng
 } from "react-places-autocomplete";
 
 import { Sunrise } from "../components/Sunrise";
+
+import SunriseController from "./sunrise";
 
 export interface PlacesState {
   enteredAddress: string,
@@ -51,34 +51,6 @@ export default class Places extends Component<PlacesProps, PlacesState> {
     };
   }
 
-  private getSunset(coordinates: Coordinates): Date {
-    return getSunset(coordinates.latitude, coordinates.longitude)
-  }
-
-  private getSunrise(coordinates: Coordinates): Date {
-    return getSunrise(coordinates.latitude, coordinates.longitude)
-  }
-
-  private getCurrentPositionInfo(): Promise<Coordinates> {
-    return new Promise<Coordinates>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition((position: Position) => {
-        resolve(position.coords);
-      }, reject , { timeout:10000 });
-    });
-  }
-
-  private async getAddressByCoordinates(latLng: google.maps.LatLngLiteral): Promise<string> {
-    return await new Promise<string>((resolve, reject) => {
-      new google.maps.Geocoder().geocode({ location: latLng }, (results) => {
-        if (!results || results.length == 0) {
-          reject(new Error("Any city was found!"));
-        } else {
-          resolve(results[0].formatted_address);
-        }
-      });
-    });
-  }
-
   private async getCoordinatesByAddress(address: string) {
     return getLatLng((await geocodeByAddress(address))[0]);
   }
@@ -94,8 +66,8 @@ export default class Places extends Component<PlacesProps, PlacesState> {
   }
 
   async componentDidMount() {
-    const position = await this.getCurrentPositionInfo();
-    const address = await this.getAddressByCoordinates(coordinatesToLatLngLiteral(position));
+    const position = await SunriseController.getCurrentPositionInfo();
+    const address = await SunriseController.getAddressByCoordinates(position);
 
     this.setState({ address });
   }
@@ -104,8 +76,8 @@ export default class Places extends Component<PlacesProps, PlacesState> {
     if (this.state.address && this.state.address != prevState.address) {
       const coordinates = await this.getCoordinatesByAddress(this.state.address);
 
-      const sunriseTime = this.getSunrise(latLngLiteralToCoordinates(coordinates));
-      const sunsetTime = this.getSunset(latLngLiteralToCoordinates(coordinates));
+      const sunriseTime = SunriseController.getSunrise(latLngLiteralToCoordinates(coordinates));
+      const sunsetTime = SunriseController.getSunset(latLngLiteralToCoordinates(coordinates));
 
       this.setState({ coordinates, sunriseTime, sunsetTime });
     }
