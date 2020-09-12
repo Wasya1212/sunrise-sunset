@@ -8,7 +8,7 @@ import "./Sunrise.scss";
 
 export interface SunriseComponentProps {
   sunrise: boolean,
-  times: Date[]
+  times: (Date | string)[]
 }
 
 export function Sunrise(props: SunriseComponentProps) {
@@ -63,8 +63,13 @@ export function Sunrise(props: SunriseComponentProps) {
       </div>
       <div className="times">
         {
-          props.times.map((time: Date) => (
-            <div className="time">{Moment(time).format("h:mm")}</div>
+          props.times.map((time: Date | string) => (
+            <div className="time">
+              {
+                typeof time == "string"
+                  ? time
+                  : Moment(time).format("h:mm")
+            }</div>
           ))
         }
       </div>
@@ -98,8 +103,7 @@ export default class SunriseComponent extends Component<any, any> {
         <form>
           <Places />
           <section>
-            <Sunrise sunrise={true} times={[new Date(), new Date(), new Date(), new Date(), new Date()]} />
-            <Sunrise sunrise={false} times={[new Date(), new Date(), new Date(), new Date(), new Date()]} />
+
           </section>
         </form>
       </section>

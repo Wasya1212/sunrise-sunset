@@ -9,6 +9,8 @@ import PlacesAutocomplete, {
   getLatLng
 } from "react-places-autocomplete";
 
+import { Sunrise } from "../components/Sunrise";
+
 export interface PlacesState {
   enteredAddress: string,
   address?: string,
@@ -57,11 +59,11 @@ export default class Places extends Component<PlacesProps, PlacesState> {
     return getSunrise(coordinates.latitude, coordinates.longitude)
   }
 
-  private async getCurrentPositionInfo(): Promise<Coordinates> {
-    return await new Promise<Coordinates>((resolve, reject) => {
+  private getCurrentPositionInfo(): Promise<Coordinates> {
+    return new Promise<Coordinates>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition((position: Position) => {
         resolve(position.coords);
-      });
+      }, reject , { timeout:10000 });
     });
   }
 
@@ -81,21 +83,18 @@ export default class Places extends Component<PlacesProps, PlacesState> {
     return getLatLng((await geocodeByAddress(address))[0]);
   }
 
-  private async getSunriseAndSunset() {
-    if (!this.state.address) return;
-
-    geocodeByAddress(this.state.address)
-      .then(results => getLatLng(results[0]))
-      .then(latLng => {
-        this.setState({
-          coordinates: latLng
-        });
-      })
-      .catch(error => console.error('Error', error));
+  private formatDateToSunriseSunset(date?: Date, iterations: number = 5, minutesStep: number = 5): string[] {
+    if (!date) return [];
+    return [
+      Moment(date).format("HH:mm"),
+      ...(new Array(iterations - 1).fill(date)).map((d, index) => (
+        Moment(d).add((index + 1) * minutesStep, 'minutes').format("HH:mm")
+      ))
+    ];
   }
 
   async componentDidMount() {
-    const position: Coordinates = await this.getCurrentPositionInfo();
+    const position = await this.getCurrentPositionInfo();
     const address = await this.getAddressByCoordinates(coordinatesToLatLngLiteral(position));
 
     this.setState({ address });
@@ -104,12 +103,9 @@ export default class Places extends Component<PlacesProps, PlacesState> {
   async componentDidUpdate(prevProps: PlacesProps, prevState: PlacesState) {
     if (this.state.address && this.state.address != prevState.address) {
       const coordinates = await this.getCoordinatesByAddress(this.state.address);
-      const sunriseTime = await this.getSunrise(latLngLiteralToCoordinates(coordinates));
-      const sunsetTime = await this.getSunset(latLngLiteralToCoordinates(coordinates));
 
-      console.log("coordinates", coordinates)
-      console.log("sunriseTime", sunriseTime)
-      console.log("sunsetTime", sunsetTime)
+      const sunriseTime = this.getSunrise(latLngLiteralToCoordinates(coordinates));
+      const sunsetTime = this.getSunset(latLngLiteralToCoordinates(coordinates));
 
       this.setState({ coordinates, sunriseTime, sunsetTime });
     }
@@ -120,7 +116,6 @@ export default class Places extends Component<PlacesProps, PlacesState> {
   };
 
   handleSelect = (address: string) => {
-    console.log("Current address is", address);
     this.setState({
       enteredAddress: '',
       address
@@ -166,6 +161,8 @@ export default class Places extends Component<PlacesProps, PlacesState> {
               })}
             </div>
             <div className="sunrise-sunset-container">
+              {this.state.sunriseTime && <Sunrise sunrise={true} times={this.formatDateToSunriseSunset(this.state.sunriseTime, 4, 20)} />}
+              {this.state.sunsetTime && <Sunrise sunrise={false} times={this.formatDateToSunriseSunset(this.state.sunsetTime, 4, 20)} />}
               {this.state.address && <h2>{this.state.address}</h2>}
               <h3>Current Date: {Moment(Date.now()).format("D MMMM YYYY [(]dddd[)]")}</h3>
               {this.state.sunriseTime && <p>Sunrise Time: {Moment(this.state.sunriseTime).format('h:mm:ss a')}</p>}
