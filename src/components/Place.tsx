@@ -4,6 +4,8 @@ import PlacesAutocomplete from "react-places-autocomplete";
 
 import Place from "../libs/place";
 
+import "./Place.scss";
+
 export interface PlacesState {
   enteredAddress: string,
   place?: Place
@@ -66,7 +68,7 @@ export default class Places extends Component<PlacesProps, PlacesState> {
         onSelect={this.handleSelect}
       >
         {({ getInputProps, suggestions, getSuggestionItemProps, loading }) => (
-          <div>
+          <div className="search-container">
             <input
               {...getInputProps({
                 placeholder: 'Search Places ...',
@@ -84,14 +86,16 @@ export default class Places extends Component<PlacesProps, PlacesState> {
                   : { backgroundColor: '#ffffff', cursor: 'pointer' };
 
                 return (
-                  <div
-                    {...getSuggestionItemProps(suggestion, {
-                      className,
-                      style,
-                      key: (): string => `gsip${new Date()}`
-                    })}
-                  >
-                    <span>{suggestion.description}</span>
+                  <div className="autocomplete-dropdown-container__items">
+                    <div
+                      {...getSuggestionItemProps(suggestion, {
+                        className,
+                        style,
+                        key: (): string => `gsip${new Date()}`
+                      })}
+                    >
+                      <span>{suggestion.description}</span>
+                    </div>
                   </div>
                 );
               })}

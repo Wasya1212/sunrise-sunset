@@ -8,6 +8,8 @@ import Place, {
   latLngLiteralToCoordinates
 } from "../libs/place";
 
+import "./SunriseSunset.scss";
+
 export interface SunriseSunsetPageState {
   currentPlace: Place
 }

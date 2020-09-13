@@ -2,6 +2,8 @@ import Axios from "axios";
 
 import { getSunrise, getSunset } from 'sunrise-sunset-js';
 
+import Data from "../data";
+
 export interface SunriseProperties {
   coordinates: Coordinates
 }

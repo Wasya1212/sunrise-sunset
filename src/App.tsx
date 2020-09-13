@@ -5,9 +5,9 @@ import SunriseSunsetPage from "./pages/SunriseSunset";
 
 function App() {
   return (
-    <div className="App">
+    <main className="content">
       <SunriseSunsetPage />
-    </div>
+    </main>
   );
 }
 

@@ -1,0 +1,34 @@
+body {
+  background-color: #f7f1e3;
+  position: relative;
+}
+
+.top-header {
+  background-color: #227093;
+  padding: 1rem;
+
+  .logo {
+    color: #f7f1e3;
+    font-size: 40px;
+    text-align: center;
+    font-family: sans-serif;
+  }
+}
+
+.content {
+  margin-bottom: 60px;
+}
+
+.bottom-footer {
+  max-width: 100%;
+  background-color: #227093;
+  padding: 1rem;
+  color: #f7f1e3;
+
+  .copyright {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    font-family: sans-serif;
+  }
+}
