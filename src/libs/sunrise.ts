@@ -1,7 +1,14 @@
+import Axios from "axios";
+
 import { getSunrise, getSunset } from 'sunrise-sunset-js';
 
 export interface SunriseProperties {
   coordinates: Coordinates
+}
+
+export interface SunriseSunsetInfo {
+  sunrise: Date,
+  sunset: Date
 }
 
 export default class Sunrise implements SunriseProperties {
@@ -25,5 +32,19 @@ export default class Sunrise implements SunriseProperties {
 
   public static getSunrise(coordinates: Coordinates): Date {
     return getSunrise(coordinates.latitude, coordinates.longitude)
+  }
+
+  public static async getSunriseSunsetInfo(coordinates: Coordinates): Promise<SunriseSunsetInfo> {
+    return Axios
+      .get(`https://api.sunrise-sunset.org/json?lat=${coordinates.latitude}&lng=${coordinates.longitude}&date=today&formatted=0`)
+      .then(results => {
+        return {
+          sunrise: new Date(results.data.results.sunrise),
+          sunset: new Date(results.data.results.sunset)
+        }
+      })
+      .then(result => {
+        return result
+      });
   }
 }

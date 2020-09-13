@@ -100,8 +100,8 @@ export default class SunriseComponent extends Component<SunriseComponentProps, S
     super(props);
 
     this.state = {
-      sunrise: this.props.place ? SunriseController.getSunrise(this.props.place.coordinates): undefined,
-      sunset:  this.props.place ? SunriseController.getSunset(this.props.place.coordinates): undefined
+      sunrise: undefined,
+      sunset:  undefined
     };
   }
 
@@ -115,12 +115,29 @@ export default class SunriseComponent extends Component<SunriseComponentProps, S
     ];
   }
 
+  componentDidMount() {
+    if (this.props.place) {
+      SunriseController
+        .getSunriseSunsetInfo(this.props.place.coordinates)
+        .then(info => {
+          this.setState({
+            sunrise: info.sunrise,
+            sunset:  info.sunset
+          });
+        });
+    }
+  }
+
   componentWillReceiveProps(newProps: SunriseComponentProps) {
     if (newProps.place) {
-      this.setState({
-        sunrise: SunriseController.getSunrise(newProps.place.coordinates),
-        sunset:  SunriseController.getSunset(newProps.place.coordinates)
-      });
+      SunriseController
+        .getSunriseSunsetInfo(newProps.place.coordinates)
+        .then(info => {
+          this.setState({
+            sunrise: info.sunrise,
+            sunset:  info.sunset
+          });
+        });
     } else {
       this.setState({
         sunrise: undefined,
