@@ -136,6 +136,9 @@ export default class SunriseComponent extends Component<SunriseComponentProps, S
       <div>
         {this.props.place.address && <h2>{this.props.place.address}</h2>}
         {this.props.place && <h3>Lat: {this.props.place.coordinates.latitude} Lng: {this.props.place.coordinates.longitude}</h3>}
+        {(this.state.sunrise || this.state.sunset) && <h3>Current Date: {Moment(Date.now()).format("D MMMM YYYY [(]dddd[)]")}</h3>}
+        {this.state.sunrise && <h4>Sunrise at: {Moment(this.state.sunrise).format("HH:mm:ss")}</h4>}
+        {this.state.sunrise && <h4>Sunset at: {Moment(this.state.sunset).format("HH:mm:ss")}</h4>}
         {this.state.sunrise && <Sunrise sunrise={true} times={this.formatDateToSunriseSunset(this.state.sunrise, 4, 20)} />}
         {this.state.sunset && <Sunrise sunrise={false} times={this.formatDateToSunriseSunset(this.state.sunset, 4, 20)} />}
       </div>

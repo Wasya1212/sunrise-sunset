@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import PlacesAutocomplete from "react-places-autocomplete";
 
 import Place from "../libs/place";
+import Sunrise from "../libs/sunrise";
 
 export interface PlacesState {
   enteredAddress: string,
@@ -10,6 +11,7 @@ export interface PlacesState {
 }
 
 export interface PlacesProps {
+  getCurrentPlaceOnLoad?: boolean,
   onPlaceChange?: (place: Place) => void
 }
 
@@ -41,6 +43,21 @@ export default class Places extends Component<PlacesProps, PlacesState> {
       this.props.onPlaceChange(this.state.place);
     }
   };
+
+  async componentDidMount() {
+    if (this.props.getCurrentPlaceOnLoad) {
+      const coordinates: Coordinates = await Sunrise.getCurrentPositionInfo();
+      const address: string = await Sunrise.getAddressByCoordinates(coordinates);
+      this.setState({
+        enteredAddress: '',
+        place: new Place({ address, coordinates })
+      });
+
+      if (this.props.onPlaceChange && this.state.place) {
+        this.props.onPlaceChange(this.state.place);
+      }
+    }
+  }
 
   render() {
     return (

@@ -4,6 +4,7 @@ import SunriseComponent from "../components/Sunrise"
 import PlaceComponent from "../components/Place";
 
 import Place from "../libs/place";
+import Sunrise from "../libs/sunrise";
 
 export interface SunriseSunsetPageState {
   currentPlace?: Place
@@ -23,7 +24,7 @@ export default class SunriseSunsetPage extends Component<any, SunriseSunsetPageS
   render() {
     return (
       <div>
-        <div><PlaceComponent onPlaceChange={this.onPlaceChange} /></div>
+        <div><PlaceComponent getCurrentPlaceOnLoad={true} onPlaceChange={this.onPlaceChange} /></div>
         <div><SunriseComponent place={this.state.currentPlace} /></div>
       </div>
     );
