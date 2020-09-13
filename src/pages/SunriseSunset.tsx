@@ -41,10 +41,10 @@ export default class SunriseSunsetPage extends Component<any, SunriseSunsetPageS
 
   render() {
     return (
-      <div>
-        <div><PlaceComponent getCurrentPlaceOnLoad={true} onPlaceChange={this.onPlaceChange} /></div>
-        <div><SunriseComponent place={this.state.currentPlace} /></div>
-        <div>
+      <div className="sunset-control">
+        <div className="control-place-container"><PlaceComponent getCurrentPlaceOnLoad={true} onPlaceChange={this.onPlaceChange} /></div>
+        <div className="control-sunrise-info-container"><SunriseComponent place={this.state.currentPlace} /></div>
+        <div className="control-map-container">
           <MapComponent
             address={this.state.currentPlace.address}
             coordinates={this.state.currentPlace.coordinates}

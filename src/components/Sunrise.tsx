@@ -150,14 +150,56 @@ export default class SunriseComponent extends Component<SunriseComponentProps, S
     if (!this.props.place) { return <div></div> }
 
     return (
-      <div>
-        {this.props.place.address && <h2>{this.props.place.address}</h2>}
-        {this.props.place && <h3>Lat: {this.props.place.coordinates.latitude} Lng: {this.props.place.coordinates.longitude}</h3>}
-        {(this.state.sunrise || this.state.sunset) && <h3>Current Date: {Moment(Date.now()).format("D MMMM YYYY [(]dddd[)]")}</h3>}
-        {this.state.sunrise && <h4>Sunrise at: {Moment(this.state.sunrise).format("HH:mm:ss")}</h4>}
-        {this.state.sunrise && <h4>Sunset at: {Moment(this.state.sunset).format("HH:mm:ss")}</h4>}
-        {this.state.sunrise && <Sunrise sunrise={true} times={this.formatDateToSunriseSunset(this.state.sunrise, 4, 20)} />}
-        {this.state.sunset && <Sunrise sunrise={false} times={this.formatDateToSunriseSunset(this.state.sunset, 4, 20)} />}
+      <div className="sunrise-info">
+        <section className="sunrise-info__text-information">
+          {this.props.place.address && <h2>{this.props.place.address}</h2>}
+          <div className="sunrise-info__text-information__details">
+            {
+              this.props.place && (
+                <div className="sunrise-info__text-information__details__row">
+                  <span className="sunrise-info__text-information__details__cell">Coordinates</span>
+                  <span className="sunrise-info__text-information__details__cell">
+                    Lat: {this.props.place.coordinates.latitude.toFixed(5)} Lng: {this.props.place.coordinates.longitude.toFixed(5)}
+                  </span>
+                </div>
+              )
+            }
+            {
+              (this.state.sunrise || this.state.sunset) && (
+                <div className="sunrise-info__text-information__details__row">
+                  <span className="sunrise-info__text-information__details__cell">Current Date</span>
+                  <span className="sunrise-info__text-information__details__cell">
+                    {Moment(Date.now()).format("D MMMM YYYY [(]dddd[)]")}
+                  </span>
+                </div>
+              )
+            }
+            {
+              this.state.sunrise && (
+                <div className="sunrise-info__text-information__details__row">
+                  <span className="sunrise-info__text-information__details__cell">Sunrise at</span>
+                  <span className="sunrise-info__text-information__details__cell">
+                    {Moment(this.state.sunrise).format("HH:mm:ss a")}
+                  </span>
+                </div>
+              )
+            }
+            {
+              this.state.sunset && (
+                <div className="sunrise-info__text-information__details__row">
+                  <span className="sunrise-info__text-information__details__cell">Sunset at</span>
+                  <span className="sunrise-info__text-information__details__cell">
+                    {Moment(this.state.sunset).format("HH:mm:ss a")}
+                  </span>
+                </div>
+              )
+            }
+          </div>
+        </section>
+        <div className="sunrise-info__visual-information">
+          {this.state.sunrise && <Sunrise sunrise={true} times={this.formatDateToSunriseSunset(this.state.sunrise, 4, 20)} />}
+          {this.state.sunset && <Sunrise sunrise={false} times={this.formatDateToSunriseSunset(this.state.sunset, 4, 20)} />}
+        </div>
       </div>
     );
   }
