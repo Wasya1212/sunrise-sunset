@@ -178,6 +178,10 @@ $easing: cubic-bezier(.25, 0, .1, 1);
   --color-window-light: white;
 }
 
+#sunrise-container.sunset .time::before {
+  transform: translateY(15px) rotate(180deg);
+}
+
 #sunrise-container {
   transform: scale(0.75);
   width: $app-width;

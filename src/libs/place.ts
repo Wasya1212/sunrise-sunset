@@ -50,4 +50,29 @@ export default class Place implements PlaceProperties {
   public static async getCoordinatesByAddress(address: string): Promise<Coordinates> {
     return latLngLiteralToCoordinates(await getLatLng((await geocodeByAddress(address))[0]));
   }
+
+  public static getCurrentPositionInfo(): Promise<Coordinates> {
+    return new Promise<Coordinates>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition((position: Position) => {
+        resolve(position.coords);
+      }, reject , { timeout:10000 });
+    });
+  }
+
+  public static async getAddressByCoordinates(coordinates: Coordinates): Promise<string> {
+    return await new Promise<string>((resolve, reject) => {
+      new google.maps.Geocoder().geocode({
+        location: {
+          lat: coordinates.latitude,
+          lng: coordinates.longitude
+        }
+      }, (results) => {
+        if (!results || results.length === 0) {
+          reject(new Error("Any city was found!"));
+        } else {
+          resolve(results[0].formatted_address);
+        }
+      });
+    });
+  }
 }
